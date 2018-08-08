@@ -104,6 +104,9 @@ definitions:
       keyword:
         description: The text output for the given bullet point.
         type: string
+      lemma:
+        description: The lemmatized version of the keyword.
+        type: string
       start:
         description: The start index of the result as a Unicode character span. input[start:end] == keyword
         type: integer
