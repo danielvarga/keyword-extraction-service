@@ -16,8 +16,13 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from prezi.swagger_django.swagger_resource import SwaggerResource
+
+swagger_presentation = SwaggerResource('keyword-extraction', 'v1')
+
 
 urlpatterns = [
-    url('ke/', include('ke.urls')),
+    (r'', include(swagger_presentation.urls)),
+#    url('ke/', include('ke.urls')),
     url(r'^admin/', admin.site.urls),
 ]

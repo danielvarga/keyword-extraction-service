@@ -1,0 +1,135 @@
+swagger: '2.0'
+info:
+  version: 0.1.0
+  title: Keyword Extraction API
+  description: Keyword Extraction API
+  contact:
+    name: Coedit Team
+    email: coedit-team@prezi.com
+    url: http://prezi.com
+schemes:
+- https
+ 
+consumes:
+- application/json
+produces:
+- application/json
+ 
+paths:
+  /api/v1/keyword-extraction/:
+    post:
+      summary: Identifies keywords in each bulletpoint for a hierarchy of bullet lists.
+      operationId: keywordExtraction
+      tags:
+      - keywordExtraction
+      x-django-view: ke.views.index
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: Text content of presentation. Data structure maps to hierarchy of slides / bullet lists / bullet points.
+          schema:
+            $ref: '#/definitions/Document'
+      responses:
+        200:
+          description: Keywords extracted, one for each bullet point.
+          schema:
+            $ref: '#/definitions/ExtractedKeywords'
+        401:
+          description: authentication failure
+          schema:
+            $ref: '#/definitions/AuthError'
+        403:
+          description: authentication failure
+          schema:
+            $ref: '#/definitions/AuthError'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+ 
+definitions:
+  AuthError:
+    required:
+    - code
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      details:
+        type: string
+ 
+  Error:
+    required:
+    - code
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      details:
+        type: string
+
+  BulletPoint:
+    description: Bullet point text.
+    type: string
+
+  BulletList:
+    description: Bullet list, simply an ordered list of bullet points.
+    type: array
+    items:
+      $ref: "#/definitions/BulletPoint"
+
+  Slide:
+    description: A slide can have several bullet lists, with a canonical ordering that identifies them in the response.
+    type: array
+    items:
+      $ref: "#/definitions/BulletList"
+
+  Document:
+    required:
+    - slides
+    properties:
+      slides:
+        type: array
+        items:
+          $ref: "#/definitions/Slide"
+
+  BulletPointResult:
+    description: The output for a given bullet point.
+    required:
+    - keyword
+    properties:
+      keyword:
+        description: The text output for the given bullet point.
+        type: string
+      start:
+        description: The start index of the result as a Unicode character span. input[start:end] == keyword
+        type: integer
+      end:
+        description: The end index of the result as a Unicode character span.
+        type: integer
+
+  BulletListResult:
+    type: array
+    items:
+      $ref: "#/definitions/BulletPointResult"
+
+  SlideResult:
+    type: array
+    items:
+      $ref: "#/definitions/BulletListResult"
+
+  SlideListResult:
+    type: array
+    items:
+      $ref: "#/definitions/SlideResult"
+
+  ExtractedKeywords:
+    description: A hierarchical structure of BulletPointResults, the structure of the hierarchy directly corresponding to the structure of the input document.
+    required:
+    - slides
+    properties:
+      slides:
+        $ref: "#/definitions/SlideListResult"
