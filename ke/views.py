@@ -25,7 +25,8 @@ def index(request):
         assert len(request.POST) == 1
         post_body = list(request.POST.keys())[0]
         items = json.loads(post_body)["query"]
-        keywords = extract.backend(items)
+        keyword_tokens = extract.backend(items)
+        keywords = extract.tokens_to_dicts(keyword_tokens)
 
         extracted = {"response": keywords}
         return HttpResponse(json.dumps(extracted))
